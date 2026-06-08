@@ -55,18 +55,24 @@ export class GameEngine {
     this.canvas.addEventListener('mousedown', (e) => this._onMouseDown(e));
     this.canvas.addEventListener('mousemove', (e) => this._onMouseMove(e));
     this.canvas.addEventListener('mouseup', (e) => this._onMouseUp(e));
-    this.canvas.addEventListener('mouseleave', (e) => this._onMouseUp(e));
+    this.canvas.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
+    
+    document.addEventListener('mouseup', (e) => this._onDocumentMouseUp(e));
     
     this.canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
       const touch = e.touches[0];
-      this._onMouseDown({ clientX: touch.clientX, clientY: touch.clientY });
+      if (touch) {
+        this._onMouseDown({ clientX: touch.clientX, clientY: touch.clientY });
+      }
     });
     
     this.canvas.addEventListener('touchmove', (e) => {
       e.preventDefault();
       const touch = e.touches[0];
-      this._onMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+      if (touch) {
+        this._onMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+      }
     });
     
     this.canvas.addEventListener('touchend', (e) => {
@@ -77,14 +83,29 @@ export class GameEngine {
 
   _getCanvasPos(clientX, clientY) {
     const rect = this.canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    const padding = 5;
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: Math.max(padding, Math.min(this.viewWidth - padding, x)),
+      y: Math.max(padding, Math.min(this.viewHeight - padding, y))
     };
+  }
+
+  _isMouseInCanvas(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    return (
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom
+    );
   }
 
   _onMouseDown(e) {
     if (gameState.phase !== GamePhase.PLAYING) return;
+    if (e.clientX == null || e.clientY == null) return;
     
     const pos = this._getCanvasPos(e.clientX, e.clientY);
     const body = this.physics.getBodyAtPosition(pos.x, pos.y);
@@ -99,6 +120,8 @@ export class GameEngine {
   }
 
   _onMouseMove(e) {
+    if (e.clientX == null || e.clientY == null) return;
+    
     const pos = this._getCanvasPos(e.clientX, e.clientY);
     this.dragEndPos = { ...pos };
     
@@ -113,10 +136,37 @@ export class GameEngine {
     }
   }
 
+  _onMouseLeave(e) {
+    this.hoveredNode = null;
+    if (!this.isDragging) {
+      this.canvas.style.cursor = 'crosshair';
+    }
+  }
+
+  _onDocumentMouseUp(e) {
+    if (!this.isDragging) return;
+    
+    const inCanvas = this._isMouseInCanvas(e);
+    if (!inCanvas) {
+      this.isDragging = false;
+      this.dragStartNode = null;
+      this.canvas.style.cursor = 'crosshair';
+      return;
+    }
+    
+    this._onMouseUp(e);
+  }
+
   _onMouseUp(e) {
     if (!this.isDragging) return;
     
-    const pos = this._getCanvasPos(e.clientX || this.dragEndPos.x, e.clientY || this.dragEndPos.y);
+    let pos;
+    if (e.clientX != null && e.clientY != null) {
+      pos = this._getCanvasPos(e.clientX, e.clientY);
+    } else {
+      pos = { ...this.dragEndPos };
+    }
+    
     const targetBody = this.physics.getBodyAtPosition(pos.x, pos.y);
     
     if (targetBody && targetBody.label !== this.dragStartNode) {
