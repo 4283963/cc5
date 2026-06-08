@@ -6,8 +6,8 @@
   "targetLatency": 350,
   "nodes": [
     { "id": "source", "x": 0.08, "y": 0.5, "radius": 35, "type": "source", "label": "HOME" },
-    { "id": "fw1", "x": 0.22, "y": 0.35, "radius": 28, "type": "firewall", "label": "FW-01" },
-    { "id": "fw2", "x": 0.22, "y": 0.65, "radius": 28, "type": "firewall", "label": "FW-02" },
+    { "id": "fw1", "x": 0.22, "y": 0.35, "radius": 28, "type": "firewall", "label": "FW-01", "tracebackTime": 3000, "tracebackDamage": 15 },
+    { "id": "fw2", "x": 0.22, "y": 0.65, "radius": 28, "type": "firewall", "label": "FW-02", "tracebackTime": 3000, "tracebackDamage": 15 },
     { "id": "n1", "x": 0.38, "y": 0.2, "radius": 20, "type": "relay", "label": "R-01" },
     { "id": "n2", "x": 0.38, "y": 0.5, "radius": 22, "type": "relay", "label": "R-02" },
     { "id": "n3", "x": 0.38, "y": 0.8, "radius": 20, "type": "relay", "label": "R-03" },

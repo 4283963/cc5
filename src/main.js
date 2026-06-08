@@ -4,6 +4,7 @@ import { wsClient } from './net/WebSocketClient.js';
 import { hud } from './ui/HUD.js';
 import { levelSelect } from './ui/LevelSelect.js';
 import { gameOverModal } from './ui/GameOverModal.js';
+import { leaderboard } from './ui/Leaderboard.js';
 
 class GameApp {
   constructor() {
@@ -68,6 +69,14 @@ class GameApp {
       gameState.phase = GamePhase.MENU;
     });
     
+    gameState.on('retryLevel', () => {
+      this.startLevel(gameState.currentLevel);
+    });
+    
+    gameState.on('gameOver', () => {
+      gameState.phase = GamePhase.GAME_OVER;
+    });
+    
     gameState.on('linkCreated', (linkData) => {
       if (!this.useOfflineMode) {
         wsClient.send('LINK_SUCCESS', {
@@ -94,7 +103,20 @@ class GameApp {
           gameState.emit('playerState', gameState.getPlayerState());
           levelSelect.render(gameState.unlockedLevels, gameState.levelProgress);
         }, 500);
+      } else {
+        wsClient.send('LEVEL_COMPLETE', {
+          levelId: gameState.currentLevel,
+          elapsedTime: result.elapsedTime,
+          remainingHealth: result.remainingHealth,
+          avgLatency: result.avgLatency,
+          totalLatency: gameState.totalLatency,
+          linkCount: gameState.linkCount
+        });
       }
+    });
+    
+    gameState.on('levelCompleteResult', (result) => {
+      levelSelect.render(gameState.unlockedLevels, gameState.levelProgress);
     });
   }
 

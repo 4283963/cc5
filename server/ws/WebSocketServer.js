@@ -1,6 +1,7 @@
 import { WebSocketServer } from 'ws';
 import gameService from '../services/GameService.js';
 import userService from '../services/UserService.js';
+import leaderboardService from '../services/LeaderboardService.js';
 import config from '../config.js';
 
 export class WebSocketGateway {
@@ -68,6 +69,18 @@ export class WebSocketGateway {
         
         case 'PING':
           this._send(client, 'PONG', { timestamp: Date.now() });
+          break;
+        
+        case 'LEVEL_COMPLETE':
+          await this._handleLevelComplete(client, payload);
+          break;
+        
+        case 'LEADERBOARD_GET':
+          await this._handleLeaderboardGet(client, payload);
+          break;
+        
+        case 'LEADERBOARD_RANK':
+          await this._handleLeaderboardRank(client, payload);
           break;
         
         default:
@@ -165,6 +178,59 @@ export class WebSocketGateway {
         client.ws.send(message);
       }
     });
+  }
+
+  async _handleLevelComplete(client, data) {
+    const { levelId, elapsedTime, remainingHealth, avgLatency, totalLatency, linkCount } = data;
+    const playerId = client.playerId;
+    
+    if (!playerId) {
+      this._send(client, 'ERROR', { code: 'NOT_AUTHENTICATED', message: 'Player not joined' });
+      return;
+    }
+    
+    const result = await gameService.completeLevel(playerId, levelId, {
+      elapsedTime,
+      remainingHealth,
+      avgLatency,
+      totalLatency,
+      linkCount
+    });
+    
+    if (!result.success) {
+      this._send(client, 'ERROR', { code: 'LEVEL_COMPLETE_FAILED', message: result.error });
+      return;
+    }
+    
+    this._send(client, 'LEVEL_COMPLETE_RESULT', result);
+    
+    const state = await userService.getPlayerState(playerId);
+    this._send(client, 'PLAYER_STATE', state);
+  }
+
+  async _handleLeaderboardGet(client, data) {
+    const { limit = 50 } = data || {};
+    
+    const leaderboard = await leaderboardService.getLeaderboard(limit);
+    
+    this._send(client, 'LEADERBOARD_DATA', {
+      leaderboard,
+      count: leaderboard.length
+    });
+  }
+
+  async _handleLeaderboardRank(client, data) {
+    const { playerId } = data || {};
+    const targetPlayerId = playerId || client.playerId;
+    
+    if (!targetPlayerId) {
+      this._send(client, 'ERROR', { code: 'INVALID_PLAYER', message: 'Player ID required' });
+      return;
+    }
+    
+    const rankInfo = await leaderboardService.getPlayerRank(targetPlayerId);
+    
+    this._send(client, 'LEADERBOARD_RANK', rankInfo || { rank: null, totalScore: 0 });
   }
 
   getClientCount() {

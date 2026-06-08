@@ -1,5 +1,6 @@
 import userService from './UserService.js';
 import levelService from './LevelService.js';
+import leaderboardService from './LeaderboardService.js';
 
 export class GameService {
   constructor() {
@@ -96,20 +97,47 @@ export class GameService {
       const avgLatency = levelState.totalLatency / levelState.linkCount;
       const stars = levelService.calculateStars(avgLatency, currentLevel);
       const coinsEarned = levelService.calculateReward(stars, currentLevel);
+      const elapsedTime = levelState.elapsedTime || 0;
+      const remainingHealth = levelState.remainingHealth ?? 100;
+      const levelScore = levelService.calculateLevelScore(
+        currentLevel, 
+        avgLatency, 
+        elapsedTime, 
+        remainingHealth
+      );
       
       await userService.updateCoins(user.id, coinsEarned);
-      await levelService.saveProgress(user.id, currentLevel, stars, Math.round(avgLatency), coinsEarned);
+      await levelService.saveProgress(
+        user.id, 
+        currentLevel, 
+        stars, 
+        Math.round(avgLatency), 
+        coinsEarned,
+        elapsedTime > 0 ? Math.round(elapsedTime) : null,
+        levelScore
+      );
       
       const nextLevel = currentLevel + 1;
       if (nextLevel <= 5) {
         await userService.unlockLevel(user.id, nextLevel);
       }
       
+      const rankInfo = await leaderboardService.updatePlayerScore(
+        user.id, 
+        playerId, 
+        user.display_name
+      );
+      
       completeResult = {
         stars,
         coinsEarned,
         avgLatency: Math.round(avgLatency),
-        nextLevel: nextLevel <= 5 ? nextLevel : null
+        elapsedTime: Math.round(elapsedTime),
+        levelScore,
+        remainingHealth,
+        nextLevel: nextLevel <= 5 ? nextLevel : null,
+        rank: rankInfo?.rank || null,
+        totalScore: rankInfo?.totalScore || 0
       };
     }
     
@@ -126,6 +154,71 @@ export class GameService {
 
   getSession(playerId) {
     return this.activeSessions.get(playerId) || null;
+  }
+
+  async completeLevel(playerId, levelId, data) {
+    const session = this.activeSessions.get(playerId);
+    if (!session || !session.currentLevel) {
+      return { success: false, error: 'No active session' };
+    }
+
+    if (session.currentLevel !== levelId) {
+      return { success: false, error: 'Level mismatch' };
+    }
+
+    const { elapsedTime, remainingHealth, avgLatency, totalLatency, linkCount } = data;
+    
+    if (elapsedTime == null || remainingHealth == null || avgLatency == null) {
+      return { success: false, error: 'Missing required data' };
+    }
+
+    const user = await userService.getOrCreateUser(playerId);
+    const stars = levelService.calculateStars(avgLatency, levelId);
+    const coinsEarned = levelService.calculateReward(stars, levelId);
+    const levelScore = levelService.calculateLevelScore(
+      levelId,
+      avgLatency,
+      elapsedTime,
+      remainingHealth
+    );
+
+    await userService.updateCoins(user.id, coinsEarned);
+    await levelService.saveProgress(
+      user.id,
+      levelId,
+      stars,
+      Math.round(avgLatency),
+      coinsEarned,
+      Math.round(elapsedTime),
+      levelScore
+    );
+
+    const nextLevel = levelId + 1;
+    if (nextLevel <= 5) {
+      await userService.unlockLevel(user.id, nextLevel);
+    }
+
+    const rankInfo = await leaderboardService.updatePlayerScore(
+      user.id,
+      playerId,
+      user.display_name
+    );
+
+    session.levelState = null;
+    session.currentLevel = null;
+
+    return {
+      success: true,
+      stars,
+      coinsEarned,
+      avgLatency: Math.round(avgLatency),
+      elapsedTime: Math.round(elapsedTime),
+      levelScore,
+      remainingHealth,
+      nextLevel: nextLevel <= 5 ? nextLevel : null,
+      rank: rankInfo?.rank || null,
+      totalScore: rankInfo?.totalScore || 0
+    };
   }
 }
 

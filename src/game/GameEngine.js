@@ -223,16 +223,26 @@ export class GameEngine {
     
     gameState.on('levelComplete', (result) => {
       gameState.phase = GamePhase.LEVEL_COMPLETE;
+      this._triggerLevelCompleteEffect();
     });
     
     gameState.on('levelReset', () => {
       gameState.phase = GamePhase.PLAYING;
+    });
+    
+    gameState.on('playerDamaged', (data) => {
+      this._triggerDamageEffect(data.amount);
+    });
+    
+    gameState.on('tracebackHit', (data) => {
+      this._triggerTracebackHitEffect();
     });
   }
 
   _loadLevel(levelData) {
     this.physics.createNodes(levelData);
     gameState.phase = GamePhase.PLAYING;
+    this.damageFlashAlpha = 0;
   }
 
   start() {
@@ -270,6 +280,16 @@ export class GameEngine {
   update(deltaTime) {
     if (gameState.phase === GamePhase.PLAYING) {
       this.physics.update(deltaTime);
+      gameState.updateFirewalls(performance.now());
+      gameState.updateTracebackPulses(deltaTime, this.physics);
+    }
+    
+    if (this.damageFlashAlpha > 0) {
+      this.damageFlashAlpha = Math.max(0, this.damageFlashAlpha - deltaTime * 0.003);
+    }
+    
+    if (this.successFlashAlpha > 0) {
+      this.successFlashAlpha = Math.max(0, this.successFlashAlpha - deltaTime * 0.002);
     }
     
     this.nodeRenderer.update(deltaTime);
@@ -278,7 +298,6 @@ export class GameEngine {
 
   render() {
     const ctx = this.ctx;
-    const { width, height } = this;
     
     ctx.clearRect(0, 0, this.viewWidth, this.viewHeight);
     
@@ -289,6 +308,7 @@ export class GameEngine {
     this._drawBackground();
     this._drawGrid();
     this.linkRenderer.drawAll(gameState.links, this.physics);
+    this._drawTracebackPulses();
     
     if (this.isDragging && this.dragStartNode) {
       const startBody = this.physics.getNodeBody(this.dragStartNode);
@@ -306,7 +326,10 @@ export class GameEngine {
     }
     
     this.nodeRenderer.drawAll(gameState.nodes, this.physics);
+    this._drawFirewallProgress();
     this._drawAmbientParticles();
+    this._drawDamageFlash();
+    this._drawSuccessFlash();
   }
 
   _drawBackground() {
@@ -359,6 +382,126 @@ export class GameEngine {
       ctx.fillStyle = `rgba(0, 255, 255, ${0.2 + Math.sin(time + i) * 0.1})`;
       ctx.fill();
     }
+  }
+
+  _drawFirewallProgress() {
+    const ctx = this.ctx;
+    
+    gameState.firewallNodes.forEach(nodeId => {
+      const body = this.physics.getNodeBody(nodeId);
+      if (!body) return;
+      
+      const progress = gameState.getActiveFirewallProgress(nodeId);
+      if (progress == null) return;
+      
+      const radius = body.circleRadius + 8;
+      const startAngle = -Math.PI / 2;
+      const endAngle = startAngle + progress * Math.PI * 2;
+      
+      ctx.beginPath();
+      ctx.arc(body.position.x, body.position.y, radius, startAngle, endAngle);
+      ctx.strokeStyle = progress > 0.7 ? '#ff0040' : '#0066ff';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = progress > 0.7 ? '#ff0040' : '#0066ff';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      
+      const remaining = Math.ceil((1 - progress) * 3);
+      if (remaining > 0) {
+        ctx.font = 'bold 10px "Share Tech Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = progress > 0.7 ? '#ff0040' : '#0066ff';
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 5;
+        ctx.fillText(`${remaining}s`, body.position.x, body.position.y - radius - 8);
+        ctx.shadowBlur = 0;
+      }
+    });
+  }
+
+  _drawTracebackPulses() {
+    const ctx = this.ctx;
+    
+    gameState.tracebackPulses.forEach(pulse => {
+      if (!pulse.active) return;
+      
+      const pos = gameState.getPulsePosition(pulse, this.physics);
+      if (!pos) return;
+      
+      const pulseRadius = 12;
+      
+      const glowGradient = ctx.createRadialGradient(
+        pos.x, pos.y, 0,
+        pos.x, pos.y, pulseRadius * 2
+      );
+      glowGradient.addColorStop(0, 'rgba(0, 100, 255, 0.6)');
+      glowGradient.addColorStop(1, 'transparent');
+      
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, pulseRadius * 2, 0, Math.PI * 2);
+      ctx.fillStyle = glowGradient;
+      ctx.fill();
+      
+      const coreGradient = ctx.createRadialGradient(
+        pos.x - pulseRadius * 0.3, pos.y - pulseRadius * 0.3, 0,
+        pos.x, pos.y, pulseRadius
+      );
+      coreGradient.addColorStop(0, '#ffffff');
+      coreGradient.addColorStop(0.4, '#0066ff');
+      coreGradient.addColorStop(1, '#003388');
+      
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, pulseRadius, 0, Math.PI * 2);
+      ctx.fillStyle = coreGradient;
+      ctx.shadowColor = '#0066ff';
+      ctx.shadowBlur = 20;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      ctx.font = 'bold 8px "Share Tech Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('⚡', pos.x, pos.y);
+    });
+  }
+
+  _drawDamageFlash() {
+    if (!this.damageFlashAlpha || this.damageFlashAlpha <= 0) return;
+    
+    const ctx = this.ctx;
+    const alpha = Math.min(1, this.damageFlashAlpha);
+    
+    ctx.fillStyle = `rgba(255, 0, 64, ${alpha * 0.4})`;
+    ctx.fillRect(0, 0, this.viewWidth, this.viewHeight);
+    
+    ctx.strokeStyle = `rgba(255, 0, 64, ${alpha})`;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(2, 2, this.viewWidth - 4, this.viewHeight - 4);
+  }
+
+  _drawSuccessFlash() {
+    if (!this.successFlashAlpha || this.successFlashAlpha <= 0) return;
+    
+    const ctx = this.ctx;
+    const alpha = Math.min(1, this.successFlashAlpha);
+    
+    ctx.fillStyle = `rgba(0, 255, 136, ${alpha * 0.2})`;
+    ctx.fillRect(0, 0, this.viewWidth, this.viewHeight);
+  }
+
+  _triggerDamageEffect(amount) {
+    this.damageFlashAlpha = 1;
+  }
+
+  _triggerLevelCompleteEffect() {
+    this.successFlashAlpha = 1;
+  }
+
+  _triggerTracebackHitEffect() {
+    this.damageFlashAlpha = 1.5;
   }
 
   getPhysics() {

@@ -87,7 +87,22 @@ export class LevelService {
     return Math.floor(baseReward * multiplier);
   }
 
-  async saveProgress(userId, levelId, stars, bestLatency, coinsEarned) {
+  calculateLevelScore(levelId, avgLatency, elapsedTime, remainingHealth) {
+    const level = this.getLevel(levelId);
+    if (!level) return 100;
+    
+    const baseReward = level.baseReward || 100;
+    const targetLatency = level.targetLatency || 200;
+    
+    const baseScore = baseReward * 2;
+    const latencyScore = Math.max(0, (targetLatency - avgLatency) * 2);
+    const healthScore = (remainingHealth || 100) * 3;
+    const timePenalty = Math.floor(elapsedTime / 1000) * 5;
+    
+    return Math.max(100, Math.floor(baseScore + latencyScore + healthScore - timePenalty));
+  }
+
+  async saveProgress(userId, levelId, stars, bestLatency, coinsEarned, bestTime = null, levelScore = null) {
     if (!db.isConnected()) {
       return true;
     }
@@ -103,19 +118,24 @@ export class LevelService {
         const newBestLatency = existing.best_latency 
           ? Math.min(existing.best_latency, bestLatency) 
           : bestLatency;
+        const newBestTime = existing.best_time && bestTime 
+          ? Math.min(existing.best_time, bestTime) 
+          : (bestTime || existing.best_time);
+        const newLevelScore = Math.max(existing.level_score || 0, levelScore || 0);
         
         await db.query(
           `UPDATE level_progress 
-           SET stars = ?, best_latency = ?, coins_earned = coins_earned + ?, completed_at = ?
+           SET stars = ?, best_latency = ?, coins_earned = coins_earned + ?, 
+               best_time = ?, level_score = ?, completed_at = ?
            WHERE user_id = ? AND level_id = ?`,
-          [newStars, newBestLatency, coinsEarned, new Date(), userId, levelId]
+          [newStars, newBestLatency, coinsEarned, newBestTime, newLevelScore, new Date(), userId, levelId]
         );
       } else {
         await db.query(
           `INSERT INTO level_progress 
-           (user_id, level_id, stars, best_latency, coins_earned, completed_at)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [userId, levelId, stars, bestLatency, coinsEarned, new Date()]
+           (user_id, level_id, stars, best_latency, coins_earned, best_time, level_score, completed_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [userId, levelId, stars, bestLatency, coinsEarned, bestTime, levelScore, new Date()]
         );
       }
       

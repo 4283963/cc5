@@ -10,6 +10,8 @@ export class HUD {
     this.statusTextEl = document.getElementById('statusText');
     this.fpsCounterEl = document.getElementById('fpsCounter');
     this.statusIndicator = document.querySelector('.status-indicator');
+    this.healthFillEl = document.getElementById('healthFill');
+    this.healthTextEl = document.getElementById('healthText');
     
     this._bindEvents();
   }
@@ -41,6 +43,14 @@ export class HUD {
     
     gameState.on('fpsUpdate', (fps) => {
       this.updateFPS(fps);
+    });
+    
+    gameState.on('healthChanged', (health) => {
+      this.updateHealth(health);
+    });
+    
+    gameState.on('levelLoaded', () => {
+      this.updateHealth(gameState.maxHealth);
     });
   }
 
@@ -91,6 +101,16 @@ export class HUD {
   updateFPS(fps) {
     if (this.fpsCounterEl) {
       this.fpsCounterEl.textContent = fps;
+    }
+  }
+
+  updateHealth(health) {
+    if (this.healthFillEl) {
+      const percent = (health / gameState.maxHealth) * 100;
+      this.healthFillEl.style.width = percent + '%';
+    }
+    if (this.healthTextEl) {
+      this.healthTextEl.textContent = Math.round(health) + '%';
     }
   }
 

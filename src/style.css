@@ -174,6 +174,43 @@ html, body {
   color: var(--neon-cyan);
 }
 
+.health-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.health-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.health-track {
+  width: 100px;
+  height: 6px;
+  background: rgba(255, 0, 64, 0.1);
+  border: 1px solid rgba(255, 0, 64, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--neon-red), var(--neon-orange));
+  box-shadow: 0 0 10px var(--neon-red);
+  transition: width 0.3s ease;
+}
+
+.health-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  color: var(--neon-red);
+  text-shadow: 0 0 8px rgba(255, 0, 64, 0.5);
+  min-width: 40px;
+}
+
 .coins {
   display: flex;
   align-items: center;
@@ -537,4 +574,165 @@ html, body {
   40% { clip-path: inset(40% 0 61% 0); transform: translate(2px, -2px); }
   60% { clip-path: inset(92% 0 1% 0); transform: translate(-2px, 2px); }
   80% { clip-path: inset(43% 0 1% 0); transform: translate(2px, -2px); }
+}
+
+.leaderboard-btn {
+  margin-top: 30px;
+  font-size: 14px;
+  padding: 12px 40px;
+}
+
+.leaderboard-modal {
+  min-width: 500px;
+  max-height: 80vh;
+}
+
+.player-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 255, 0.05));
+  border: 1px solid var(--neon-green);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.rank-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rank-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--neon-green);
+  text-shadow: 0 0 10px var(--neon-green);
+}
+
+.score-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px rgba(255, 255, 0, 0.5);
+}
+
+.leaderboard-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.leaderboard-header {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 100px;
+  gap: 10px;
+  padding: 10px 15px;
+  background: rgba(0, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.leaderboard-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.leaderboard-item {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 100px;
+  gap: 10px;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.leaderboard-item:hover {
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.leaderboard-item.top-1 {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), transparent);
+  border-left: 3px solid #ffd700;
+}
+
+.leaderboard-item.top-2 {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.1), transparent);
+  border-left: 3px solid #c0c0c0;
+}
+
+.leaderboard-item.top-3 {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.1), transparent);
+  border-left: 3px solid #cd7f32;
+}
+
+.col-rank {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--neon-cyan);
+}
+
+.top-1 .col-rank {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.top-2 .col-rank {
+  color: #c0c0c0;
+  text-shadow: 0 0 8px rgba(192, 192, 192, 0.6);
+}
+
+.top-3 .col-rank {
+  color: #cd7f32;
+  text-shadow: 0 0 8px rgba(205, 127, 50, 0.6);
+}
+
+.col-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-stars {
+  font-size: 12px;
+  color: var(--neon-yellow);
+  text-align: center;
+}
+
+.col-score {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  color: var(--neon-cyan);
+  text-align: right;
+}
+
+.leaderboard-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leaderboard-list::-webkit-scrollbar-track {
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.leaderboard-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.leaderboard-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.5);
 }

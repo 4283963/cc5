@@ -107,6 +107,23 @@ export class WebSocketClient {
         gameState.emit('playerState', gameState.getPlayerState());
         break;
       
+      case 'LEVEL_COMPLETE_RESULT':
+        gameState.coins += data.coinsEarned || 0;
+        if (data.nextLevel && !gameState.unlockedLevels.includes(data.nextLevel)) {
+          gameState.unlockedLevels.push(data.nextLevel);
+        }
+        gameState.emit('playerState', gameState.getPlayerState());
+        gameState.emit('levelCompleteResult', data);
+        break;
+      
+      case 'LEADERBOARD_DATA':
+        gameState.emit('leaderboardData', data);
+        break;
+      
+      case 'LEADERBOARD_RANK':
+        gameState.emit('leaderboardRank', data);
+        break;
+      
       case 'ERROR':
         console.error('[WS] Server error:', data.message);
         gameState.emit('error', data);

@@ -38,6 +38,15 @@
       </div>
       
       <div class="hud-right">
+        <div class="health-bar-container">
+          <span class="label">系统血量</span>
+          <div class="health-bar">
+            <div class="health-track">
+              <div id="healthFill" class="health-fill"></div>
+            </div>
+            <span id="healthText" class="health-text">100%</span>
+          </div>
+        </div>
         <div class="coins">
           <span class="coin-icon">◈</span>
           <span id="coinCount" class="coin-value">0</span>
@@ -55,6 +64,9 @@
       <div id="levelSelect" class="level-select">
         <h2 class="title">// 选择目标网络</h2>
         <div id="levelGrid" class="level-grid"></div>
+        <button id="btnLeaderboard" class="btn btn-secondary leaderboard-btn">
+          ◈ 全网排行榜
+        </button>
       </div>
       
       <div id="gameOverModal" class="modal hidden">
@@ -73,10 +85,47 @@
               <span class="stat-label">平均延迟</span>
               <span id="modalLatency" class="stat-value">0 ms</span>
             </div>
+            <div class="stat">
+              <span class="stat-label">剩余血量</span>
+              <span id="modalHealth" class="stat-value">100%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">通关时间</span>
+              <span id="modalTime" class="stat-value">0:00</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">关卡得分</span>
+              <span id="modalScore" class="stat-value">0</span>
+            </div>
           </div>
           <div class="modal-actions">
             <button id="btnNextLevel" class="btn btn-primary">下一关</button>
+            <button id="btnRetry" class="btn btn-secondary" style="display:none;">重新挑战</button>
             <button id="btnBackToMenu" class="btn btn-secondary">返回菜单</button>
+          </div>
+        </div>
+      </div>
+      
+      <div id="leaderboardModal" class="modal hidden">
+        <div class="modal-content leaderboard-modal">
+          <h2 class="modal-title glitch" data-text="全网黑客排行榜">全网黑客排行榜</h2>
+          <div class="player-rank">
+            <span class="rank-label">我的排名</span>
+            <span id="myRank" class="rank-value">--</span>
+            <span id="myScore" class="score-value">0 分</span>
+          </div>
+          <div class="leaderboard-list">
+            <div class="leaderboard-header">
+              <span class="col-rank">排名</span>
+              <span class="col-name">黑客代号</span>
+              <span class="col-stars">星数</span>
+              <span class="col-score">积分</span>
+            </div>
+            <div id="leaderboardItems" class="leaderboard-items">
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="btnCloseLeaderboard" class="btn btn-primary">关闭</button>
           </div>
         </div>
       </div>
