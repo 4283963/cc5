@@ -1,0 +1,20 @@
+{
+  "id": 3,
+  "name": "环形网络",
+  "description": "环形拓扑，寻找最短入侵路径",
+  "baseReward": 200,
+  "targetLatency": 250,
+  "nodes": [
+    { "id": "source", "x": 0.5, "y": 0.85, "radius": 35, "type": "source", "label": "HOME" },
+    { "id": "n1", "x": 0.25, "y": 0.65, "radius": 22, "type": "relay", "label": "R-01" },
+    { "id": "n2", "x": 0.75, "y": 0.65, "radius": 22, "type": "relay", "label": "R-02" },
+    { "id": "n3", "x": 0.15, "y": 0.35, "radius": 22, "type": "relay", "label": "R-03" },
+    { "id": "n4", "x": 0.5, "y": 0.2, "radius": 25, "type": "relay", "label": "R-04" },
+    { "id": "n5", "x": 0.85, "y": 0.35, "radius": 22, "type": "relay", "label": "R-05" },
+    { "id": "n6", "x": 0.35, "y": 0.45, "radius": 20, "type": "relay", "label": "R-06" },
+    { "id": "n7", "x": 0.65, "y": 0.45, "radius": 20, "type": "relay", "label": "R-07" },
+    { "id": "target1", "x": 0.5, "y": 0.5, "radius": 30, "type": "target", "label": "CORE" },
+    { "id": "target2", "x": 0.1, "y": 0.15, "radius": 28, "type": "target", "label": "NODE-A" },
+    { "id": "target3", "x": 0.9, "y": 0.15, "radius": 28, "type": "target", "label": "NODE-B" }
+  ]
+}

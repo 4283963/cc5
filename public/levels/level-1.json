@@ -1,0 +1,14 @@
+{
+  "id": 1,
+  "name": "初试身手",
+  "description": "第一次入侵，从简单的网络拓扑开始",
+  "baseReward": 100,
+  "targetLatency": 150,
+  "nodes": [
+    { "id": "source", "x": 0.15, "y": 0.5, "radius": 35, "type": "source", "label": "HOME" },
+    { "id": "n1", "x": 0.4, "y": 0.3, "radius": 25, "type": "relay", "label": "R-01" },
+    { "id": "n2", "x": 0.4, "y": 0.7, "radius": 25, "type": "relay", "label": "R-02" },
+    { "id": "n3", "x": 0.65, "y": 0.5, "radius": 25, "type": "relay", "label": "R-03" },
+    { "id": "target1", "x": 0.88, "y": 0.5, "radius": 35, "type": "target", "label": "SERVER" }
+  ]
+}

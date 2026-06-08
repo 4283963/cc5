@@ -1,0 +1,27 @@
+{
+  "id": 5,
+  "name": "黑网核心",
+  "description": "终极挑战，入侵最安全的黑网核心节点",
+  "baseReward": 500,
+  "targetLatency": 500,
+  "nodes": [
+    { "id": "source", "x": 0.06, "y": 0.5, "radius": 35, "type": "source", "label": "HOME" },
+    { "id": "e1", "x": 0.18, "y": 0.3, "radius": 24, "type": "relay", "label": "E-01" },
+    { "id": "e2", "x": 0.18, "y": 0.7, "radius": 24, "type": "relay", "label": "E-02" },
+    { "id": "e3", "x": 0.18, "y": 0.5, "radius": 24, "type": "firewall", "label": "FW-E" },
+    { "id": "m1", "x": 0.35, "y": 0.15, "radius": 20, "type": "relay", "label": "M-01" },
+    { "id": "m2", "x": 0.35, "y": 0.4, "radius": 22, "type": "relay", "label": "M-02" },
+    { "id": "m3", "x": 0.35, "y": 0.6, "radius": 22, "type": "relay", "label": "M-03" },
+    { "id": "m4", "x": 0.35, "y": 0.85, "radius": 20, "type": "relay", "label": "M-04" },
+    { "id": "fw1", "x": 0.5, "y": 0.3, "radius": 26, "type": "firewall", "label": "FW-1" },
+    { "id": "fw2", "x": 0.5, "y": 0.7, "radius": 26, "type": "firewall", "label": "FW-2" },
+    { "id": "d1", "x": 0.62, "y": 0.2, "radius": 22, "type": "database", "label": "DB-A" },
+    { "id": "d2", "x": 0.62, "y": 0.5, "radius": 24, "type": "relay", "label": "CORE" },
+    { "id": "d3", "x": 0.62, "y": 0.8, "radius": 22, "type": "database", "label": "DB-B" },
+    { "id": "h1", "x": 0.78, "y": 0.35, "radius": 20, "type": "relay", "label": "H-01" },
+    { "id": "h2", "x": 0.78, "y": 0.65, "radius": 20, "type": "relay", "label": "H-02" },
+    { "id": "target1", "x": 0.92, "y": 0.2, "radius": 28, "type": "target", "label": "VAULT" },
+    { "id": "target2", "x": 0.92, "y": 0.5, "radius": 38, "type": "target", "label": "MAINFRAME" },
+    { "id": "target3", "x": 0.92, "y": 0.8, "radius": 28, "type": "target", "label": "DARK-CORE" }
+  ]
+}

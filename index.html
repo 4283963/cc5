@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBER HACK // 网络入侵</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="scanlines"></div>
+    <div class="grid-bg"></div>
+    
+    <header class="hud">
+      <div class="hud-left">
+        <div class="logo">
+          <span class="logo-bracket">[</span>
+          <span class="logo-text">CYBER//HACK</span>
+          <span class="logo-bracket">]</span>
+        </div>
+        <div class="level-info">
+          <span class="label">关卡</span>
+          <span id="levelNum" class="value">01</span>
+        </div>
+      </div>
+      
+      <div class="hud-center">
+        <div class="progress-bar">
+          <div class="progress-label">入侵进度</div>
+          <div class="progress-track">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <span id="progressText" class="progress-text">0 / 0</span>
+        </div>
+      </div>
+      
+      <div class="hud-right">
+        <div class="coins">
+          <span class="coin-icon">◈</span>
+          <span id="coinCount" class="coin-value">0</span>
+        </div>
+        <div class="latency">
+          <span class="label">延迟</span>
+          <span id="latencyValue" class="value">-- ms</span>
+        </div>
+      </div>
+    </header>
+    
+    <main class="game-container">
+      <canvas id="gameCanvas"></canvas>
+      
+      <div id="levelSelect" class="level-select">
+        <h2 class="title">// 选择目标网络</h2>
+        <div id="levelGrid" class="level-grid"></div>
+      </div>
+      
+      <div id="gameOverModal" class="modal hidden">
+        <div class="modal-content">
+          <h2 class="modal-title glitch" data-text="入侵完成">入侵完成</h2>
+          <div class="modal-stats">
+            <div class="stat">
+              <span class="stat-label">星级评价</span>
+              <span id="modalStars" class="stat-value stars">★★★</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">获得金币</span>
+              <span id="modalCoins" class="stat-value coin-value">+0</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">平均延迟</span>
+              <span id="modalLatency" class="stat-value">0 ms</span>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="btnNextLevel" class="btn btn-primary">下一关</button>
+            <button id="btnBackToMenu" class="btn btn-secondary">返回菜单</button>
+          </div>
+        </div>
+      </div>
+      
+      <div id="connectingModal" class="modal">
+        <div class="modal-content">
+          <div class="loading-spinner"></div>
+          <h2 class="modal-title">正在接入网络...</h2>
+          <p id="connectingStatus" class="modal-subtitle">建立安全连接</p>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="footer-hud">
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span id="statusText">在线</span>
+      </div>
+      <div class="hint">拖拽节点建立数据连接 · 入侵所有目标</div>
+      <div class="fps"><span id="fpsCounter">60</span> FPS</div>
+    </footer>
+  </div>
+  
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

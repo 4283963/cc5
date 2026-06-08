@@ -1,0 +1,17 @@
+{
+  "id": 2,
+  "name": "双线突破",
+  "description": "两个目标服务器，选择最优路径",
+  "baseReward": 150,
+  "targetLatency": 200,
+  "nodes": [
+    { "id": "source", "x": 0.1, "y": 0.5, "radius": 35, "type": "source", "label": "HOME" },
+    { "id": "n1", "x": 0.3, "y": 0.25, "radius": 22, "type": "relay", "label": "R-01" },
+    { "id": "n2", "x": 0.3, "y": 0.75, "radius": 22, "type": "relay", "label": "R-02" },
+    { "id": "n3", "x": 0.5, "y": 0.5, "radius": 25, "type": "relay", "label": "R-03" },
+    { "id": "n4", "x": 0.7, "y": 0.25, "radius": 22, "type": "relay", "label": "R-04" },
+    { "id": "n5", "x": 0.7, "y": 0.75, "radius": 22, "type": "relay", "label": "R-05" },
+    { "id": "target1", "x": 0.9, "y": 0.3, "radius": 32, "type": "target", "label": "SRV-A" },
+    { "id": "target2", "x": 0.9, "y": 0.7, "radius": 32, "type": "target", "label": "SRV-B" }
+  ]
+}
